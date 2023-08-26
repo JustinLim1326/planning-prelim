@@ -43,31 +43,31 @@ def discretizeParametric(spline_params, cur_s, ds):
   return discretized_points
 
 def closestPoint(vehicle_x, vehicle_y, waypoints):
-  """
-  Finds the closest waypoint to the vehicle.
+    """
+    Finds the closest waypoint to the vehicle.
 
-  Args:
-    vehicle_x: The x-coordinate of the vehicle.
-    vehicle_y: The y-coordinate of the vehicle.
-    waypoints: A list of (x, y, heading) tuples representing the waypoints.
+    Args:
+      vehicle_x: The x-coordinate of the vehicle.
+      vehicle_y: The y-coordinate of the vehicle.
+      waypoints: A list of (x, y, heading) tuples representing the waypoints.
 
-  Returns:
-    The index of the closest waypoint.
-  """
+    Returns:
+      The waypoint tuple (x, y, heading) of the closest waypoint.
+    """
 
-  # Find the waypoint closest to the vehicle's current position
-  closest_distance = float('inf')
-  closest_wp = None
+    # Find the waypoint closest to the vehicle's current position
+    closest_distance = float('inf')
+    closest_wp = None
 
-  for index, wp in enumerate(waypoints):
-    dx = wp[0] - vehicle_x
-    dy = wp[1] - vehicle_y
-    distance = np.hypot(dx, dy)
-    if distance < closest_distance:
-      closest_distance = distance
-      closest_wp = index
+    for wp in waypoints:
+        dx = torch.tensor(wp[0] - vehicle_x)  # Convert to PyTorch tensor
+        dy = torch.tensor(wp[1] - vehicle_y)  # Convert to PyTorch tensor
+        distance = torch.hypot(dx, dy)
+        if distance < closest_distance:
+            closest_distance = distance
+            closest_wp = wp
 
-  return closest_wp
+    return closest_wp
 
 def getMaxLatAccel(setting):
   """
@@ -243,6 +243,8 @@ def gradDescent(spline_params, ego, ds, setting, max_vel, learning_rate, epochs,
   cur_s = 0
   waypoints = discretizeParametric(spline_params, cur_s, ds)
   discretized_racing_line = {}
+
+  spline_params = torch.tensor(spline_params)  # Convert to PyTorch tensor
 
   # Find the closest waypoint and update cur_s
   closest_wp = closestPoint(ego.x, ego.y, waypoints)
